@@ -1,7 +1,3 @@
-<?php
-include_once ("configure/configure.php");
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -63,7 +59,7 @@ include_once ("configure/configure.php");
 						<div class="form-group">
 							<label for="inputPassword3" class="col-sm-2 control-label">Password</label>
 							<div class="col-sm-10">
-								<input type="password" class="form-control" name="passwordsignin" id="password" placeholder="Password">
+								<input type="password" class="form-control" name="passwordsignin" id="passwordsignin" placeholder="Password">
 							</div>
 						</div>
 
@@ -122,7 +118,7 @@ include_once ("configure/configure.php");
 				</div>
 				<center>
 					<h3>Or</h3>
-					<a href="https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=http://php-hachiassignment.rhcloud.com/oauth.php&client_id=1044765685023.apps.googleusercontent.com&scope=http%3A%2F%2Fwww.google.com%2Fm8%2Ffeeds%2F&access_type=offline&approval_prompt=force" style="background-color:#E32B1D;color:#FFFFFF;padding: 10px; ">Sign In Using Gmail</a>
+					<a href="https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=http://hachiassignment.net78.net/oauth.php&client_id=1044765685023.apps.googleusercontent.com&scope=http%3A%2F%2Fwww.google.com%2Fm8%2Ffeeds%2F&access_type=offline&approval_prompt=force" style="background-color:#E32B1D;color:#FFFFFF;padding: 10px; ">Sign In Using Gmail</a>
 				</center>
 			</div>
 

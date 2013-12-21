@@ -1,10 +1,10 @@
 <?php
 
 $dPconfig['dbtype'] = 'mysql'; 
-$dbhost = "localhost";
-$dbuser = "adminHdDH4wG";
-$dbpass = "ETu6-5dLEvIk";
-$dbname = "php";
+$dbhost = "mysql2.000webhost.com";
+$dbuser = "a7324978_root";
+$dbpass = "a7324978";
+$dbname = "a7324978_hachi";
 $dPconfig['dbpersist'] = false; 
 
 /* 
@@ -44,5 +44,6 @@ $language = $_SESSION['languageTemp'];
 }
 */
 
+session_start();
 
 ?>

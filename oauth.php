@@ -93,7 +93,7 @@ if (isset($auth)) {
 
 					<?php
 					if ($client -> getAccessToken()) {
-						$max_results = 10;
+						$max_results = 1000;
 						$req = new Google_HttpRequest("https://www.google.com/m8/feeds/contacts/default/full?max-results=" . $max_results . "&alt=json");
 						$val = $client -> getIo() -> authenticatedRequest($req);
 

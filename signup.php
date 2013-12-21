@@ -5,15 +5,16 @@ include_once ("configure/configure.php");
 		die('You did not complete all of the required fields');
 
 	} else {
-
 		$sql = "select * from user where email ='" . $_POST['email'] ."'";
-		$res = mysql_query($sql);
+		$res = mysql_query($sql) or die("maja ni aavi select");
 		$check = mysql_num_rows($res);
 		if($check!=0){
 			$msg = "Already Registred!!";
 			header("location:index.php?msg=".$msg);
 		}else {
-			mysql_query("INSERT INTO user (email, password) VALUES ('" . $_POST['email'] . "', '" . $_POST['password'] . "')");
+			mysql_query("INSERT INTO user (email, password) VALUES ('" . $_POST['email'] . "', '" . $_POST['password'] . "')") or die('maja ni aavi');
+			$msg = "Suucessfully Registred!!";
+			header("location:index.php?msg=".$msg);
 		}
 	}
 ?>
