@@ -27,7 +27,7 @@ $apiConfig = array(
     // OAuth2 Settings, you can get these keys at https://code.google.com/apis/console
     'oauth2_client_id' => '1044765685023.apps.googleusercontent.com',
     'oauth2_client_secret' => 'UTOf4TycuVhFaF4_e82jSl80',
-    'oauth2_redirect_uri' => 'http://localhost/gohachiassignment/index.php',
+    'oauth2_redirect_uri' => 'http://php-hachiassignment.rhcloud.com/oauth.php',
 
     // The developer key, you get this at https://code.google.com/apis/console
     'developer_key' => 'AIzaSyC_Xis1_eIvrrN7paBAzPF7orKb1Izu_24',

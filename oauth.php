@@ -1,102 +1,178 @@
+<?php
+include_once ("configure/configure.php");
+session_start();
+?>
+
+<?php
+
+require_once 'google-api-php-client/src/Google_Client.php';
+
+$client = new Google_Client();
+$client -> setApplicationName('Google Contacts');
+$client -> setScopes("http://www.google.com/m8/feeds/");
+// Documentation: http://code.google.com/apis/gdata/docs/2.0/basics.html
+// Visit https://code.google.com/apis/console?api=contacts to generate your
+// oauth2_client_id, oauth2_client_secret, and register your oauth2_redirect_uri.
+// $client->setClientId('insert_your_oauth2_client_id');
+// $client->setClientSecret('insert_your_oauth2_client_secret');
+// $client->setRedirectUri('insert_your_redirect_uri');
+// $client->setDeveloperKey('insert_your_developer_key');
+
+if (isset($_GET['code'])) {
+	$client -> authenticate();
+	$_SESSION['token'] = $client -> getAccessToken();
+	$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+	header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
+}
+
+if (isset($_SESSION['token'])) {
+	$client -> setAccessToken($_SESSION['token']);
+}
+
+if (isset($_REQUEST['logout'])) {
+	unset($_SESSION['token']);
+	$client -> revokeToken();
+}
+if (!$client -> getAccessToken()) {
+	$auth = $client -> createAuthUrl();
+}
+print "<div style='margin-top:20px;'></div>";
+if (isset($auth)) {
+
+	print "<a class=login style='background-color:#E32B1D;color:#FFFFFF;padding: 10px;' href='$auth'>Connect Using Gmail</a>";
+} else {
+	print "<a class=logout style='background-color:#E32B1D;color:#FFFFFF;padding: 10px;' href='?logout'>Disconnect Gmail</a>";
+}
+?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>Assignment</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="description" content="">
+		<meta name="author" content="">
 
-		<!--Google Fonts-->
-		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,600,700' rel='stylesheet' type='text/css'>
+		<title>Assigment</title>
 
-		<!--CSS-->
-		<link rel="stylesheet" href="assets/css/bootstrap.min.css" type="text/css"/>
-		<link rel="stylesheet" href="assets/css/font-awesome.min.css" type="text/css"/>
+		<!-- Bootstrap core CSS -->
+		<link href="css/bootstrap.css" rel="stylesheet">
 
-		<!--Default Theme-->
-		<link rel="stylesheet" href="assets/css/style.css" type="text/css"/>
-
+		<!-- Add custom CSS here -->
+		<link href="css/modern-business.css" rel="stylesheet">
+		<link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
 	</head>
+
 	<body>
-		<!--Wrapper-->
-		<div id="wrapper">
-			<!--Container-->
-			<div class="container page-body">
 
-				<!--Authorization-->
-				<div id="profile" class="nav-target">
-					<div style="margin: 10px 0 0 30px;float:left;">
-							<?php
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<!-- You'll want to use a responsive image option so this logo looks good on devices - I recommend using something like retina.js (do a quick Google search for it and you'll find it) -->
+					<a class="navbar-brand" href="index.php">Assignment</a>
+				</div>
+				<!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="logout.php">Logout</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+			</div>
+		</nav>
+		<div class="container">
+			<div class="row">
+				<div style="margin: 20px;"></div>
+				<h3>Gmail Contacts</h3>
+				<div class="col-lg-12">
 
-							require_once 'google-api-php-client/src/Google_Client.php';
-							session_start();
+					<?php
+					if ($client -> getAccessToken()) {
+						$max_results = 10;
+						$req = new Google_HttpRequest("https://www.google.com/m8/feeds/contacts/default/full?max-results=" . $max_results . "&alt=json");
+						$val = $client -> getIo() -> authenticatedRequest($req);
 
-							$client = new Google_Client();
-							$client -> setApplicationName('Google Contacts PHP Sample');
-							$client -> setScopes("http://www.google.com/m8/feeds/");
-							// Documentation: http://code.google.com/apis/gdata/docs/2.0/basics.html
-							// Visit https://code.google.com/apis/console?api=contacts to generate your
-							// oauth2_client_id, oauth2_client_secret, and register your oauth2_redirect_uri.
-							// $client->setClientId('insert_your_oauth2_client_id');
-							// $client->setClientSecret('insert_your_oauth2_client_secret');
-							// $client->setRedirectUri('insert_your_redirect_uri');
-							// $client->setDeveloperKey('insert_your_developer_key');
+						// The contacts api only returns XML responses.
+						//$response = json_encode(simplexml_load_string($val -> getResponseBody()));
+						$response = $val -> getResponseBody();
 
-							if (isset($_GET['code'])) {
-								$client -> authenticate();
-								$_SESSION['token'] = $client -> getAccessToken();
-								$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-								header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
-							}
+						$response_as_array = json_decode($response, true);
 
-							if (isset($_SESSION['token'])) {
-								$client -> setAccessToken($_SESSION['token']);
-							}
+						$feed = $response_as_array['feed'];
 
-							if (isset($_REQUEST['logout'])) {
-								unset($_SESSION['token']);
-								$client -> revokeToken();
-							}
+						//$id = $feed['id'];
+						$author = $feed['author'];
 
-							if ($client -> getAccessToken()) {
-								$max_results = 10000;
-								$req = new Google_HttpRequest("https://www.google.com/m8/feeds/contacts/default/full?max-results=" . $max_results);
-								$val = $client -> getIo() -> authenticatedRequest($req);
+						foreach ($author as $obj) {
+							$name = $obj['name']['$t'];
+							$email = $obj['email']['$t'];
+						}
 
-								// The contacts api only returns XML responses.
-								$response = json_encode(simplexml_load_string($val -> getResponseBody()));
-								$result = json_decode($response, true);
-								$author = $result['author'];
-								print "<h3>Hello, ". $author['name']. "</h3>";
-								print "<h4>Your Contacts List</h4>";
-								//print "<pre>" . print_r($result, true) . "</pre>";
-								$entry = $result['entry'];
-								foreach ($entry as $obj) {
-									if (!is_array($obj['title']))
-										echo "<br>" . $obj['title'] . "<br />";
+						$totalresults = $feed['openSearch$totalResults'];
+						//echo $totalresults['$t'];
+						$entries = $feed['entry'];
+
+						//print "<pre>" . print_r($response_as_array, true) . "</pre>";
+						print "<table class='table'><tr><th>Name</th>
+								<th>Phone Numbers</th>
+								</tr>";
+
+						foreach ($entries as $entry) {
+							print "<tr>";
+							print "<td>";
+							echo $entry['title']['$t'];
+							print "</td>";
+							print "<td>";
+							if (isset($entry['gd$phoneNumber'])) {
+								$phonenumber = $entry['gd$phoneNumber'];
+								foreach ($phonenumber as $obj) {
+									echo $obj['$t'];
 								}
-
-								// The access token may have been updated lazily.
-								$_SESSION['token'] = $client -> getAccessToken();
-							} else {
-								$auth = $client -> createAuthUrl();
 							}
+							print "</td>";
+							print "</tr>";
+						}
+						
+							print "</table>";
+						// The access token may have been updated lazily.
+						$_SESSION['token'] = $client -> getAccessToken();
 
-							if (isset($auth)) {
-								print "<a class=login href='$auth'>Login Using Gmail</a>";
-							} else {
-								print "<a class=logout href='?logout'>Logout</a>";
-							}
-							?>
+					} else {
+						$auth = $client -> createAuthUrl();
+						print "<h3>No Contacts. Connect Using Gmail</h3>";
+					}
+					?>
+					
+				</div>
+			</div>
+
+		</div><!-- /.container -->
+
+		<div class="container">
+
+			<hr>
+
+			<footer>
+				<div class="row">
+					<div class="col-lg-12">
+						<p>
+							Copyright &copy; 2013
+						</p>
 					</div>
 				</div>
-				<!--End Wrapper -->
+			</footer>
 
+		</div><!-- /.container -->
+
+		<!-- JavaScript -->
+		<script src="js/jquery-1.10.2.js"></script>
+		<script src="js/bootstrap.js"></script>
+		<script src="js/modern-business.js"></script>
 	</body>
 </html>
-<!--Javascript-->
-<script src="assets/js/jquery-1.10.2.min.js"></script>
-<script src="assets/js/jquery-ui-1.10.3.custom.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
-<script src="js/custom.js"></script>
 

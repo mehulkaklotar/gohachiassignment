@@ -2,9 +2,9 @@
 
 $dPconfig['dbtype'] = 'mysql'; 
 $dbhost = "localhost";
-$dbuser = "root";
-$dbpass = "";
-$dbname = "hachidb";
+$dbuser = "adminHdDH4wG";
+$dbpass = "ETu6-5dLEvIk";
+$dbname = "php";
 $dPconfig['dbpersist'] = false; 
 
 /* 

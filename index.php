@@ -1,134 +1,248 @@
 <?php
 include_once ("configure/configure.php");
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>Assignment</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="description" content="">
+		<meta name="author" content="">
 
-		<!--Google Fonts-->
-		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,600,700' rel='stylesheet' type='text/css'>
+		<title>Assigment</title>
 
-		<!--CSS-->
-		<link rel="stylesheet" href="assets/css/bootstrap.min.css" type="text/css"/>
-		<link rel="stylesheet" href="assets/css/font-awesome.min.css" type="text/css"/>
+		<!-- Bootstrap core CSS -->
+		<link href="css/bootstrap.css" rel="stylesheet">
 
-		<!--Default Theme-->
-		<link rel="stylesheet" href="assets/css/style.css" type="text/css"/>
-
+		<!-- Add custom CSS here -->
+		<link href="css/modern-business.css" rel="stylesheet">
+		<link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
 	</head>
+
 	<body>
-		<!--Wrapper-->
-		<div id="wrapper">
-			<!--Container-->
-			<div class="container page-body">
 
-				<!--Authorization-->
-				<div id="profile" class="nav-target">
-					<div style="margin: 10px 0 0 30px;float:left;">
-						<?php
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<!-- You'll want to use a responsive image option so this logo looks good on devices - I recommend using something like retina.js (do a quick Google search for it and you'll find it) -->
+					<a class="navbar-brand" href="index.php">Assignment</a>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
 
-						require_once 'google-api-php-client/src/Google_Client.php';
-						session_start();
+			<div class="row">
+				<div style="margin: 20px;"></div>
+				<div class="col-lg-6">
+					<h3>Sign in</h3>
+					<form class="form-horizontal" id="frmsignin"name="frmsignin" role="form" method="post" action="signin.php">
+						<?php if(isset($_REQUEST['alert'])){ ?><span class="alert"><?php echo $_REQUEST['alert']; ?></span><?php } ?>
+						<div class="alert alert-error hide">
+							<button class="close" data-dismiss="alert"></button>
+							You have some form errors. Please check below.
+						</div>
+						<div class="alert alert-success hide">
+							<button class="close" data-dismiss="alert"></button>
+							Your form validation is successful!
+						</div>
 
-						$client = new Google_Client();
-						$client -> setApplicationName('Google Contacts');
-						$client -> setScopes("http://www.google.com/m8/feeds/");
-						// Documentation: http://code.google.com/apis/gdata/docs/2.0/basics.html
-						// Visit https://code.google.com/apis/console?api=contacts to generate your
-						// oauth2_client_id, oauth2_client_secret, and register your oauth2_redirect_uri.
-						// $client->setClientId('insert_your_oauth2_client_id');
-						// $client->setClientSecret('insert_your_oauth2_client_secret');
-						// $client->setRedirectUri('insert_your_redirect_uri');
-						// $client->setDeveloperKey('insert_your_developer_key');
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">Email</label>
+							<div class="col-sm-10">
+								<input type="email" class="form-control" name="emailsignin" id="inputEmail3" placeholder="Email">
 
-						if (isset($_GET['code'])) {
-							$client -> authenticate();
-							$_SESSION['token'] = $client -> getAccessToken();
-							$redirect = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-							header('Location: ' . filter_var($redirect, FILTER_SANITIZE_URL));
-						}
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">Password</label>
+							<div class="col-sm-10">
+								<input type="password" class="form-control" name="passwordsignin" id="password" placeholder="Password">
+							</div>
+						</div>
 
-						if (isset($_SESSION['token'])) {
-							$client -> setAccessToken($_SESSION['token']);
-						}
+						<div class="form-group">
+							<div class="col-sm-offset-2 col-sm-10">
+								<button type="submit" name="submit" class="btn btn-default">
+									Login
+								</button>
+							</div>
+						</div>
+					</form>
 
-						if (isset($_REQUEST['logout'])) {
-							unset($_SESSION['token']);
-							$client -> revokeToken();
-						}
+				</div>
+				<div class="col-lg-6">
+					<h3>Sign Up</h3>
+					<form class="form-horizontal" id="frmsignup"name="frmsignup" role="form" method="post" action="signup.php">
+						<?php if(isset($_REQUEST['msg'])){ ?><span class="alert"><?php echo $_REQUEST['msg']; ?></span><?php } ?>
+						<div class="alert alert-error hide">
+						<button class="close" data-dismiss="alert"></button>
+						You have some form errors. Please check below.
+						</div>
+						<div class="alert alert-success hide">
+						<button class="close" data-dismiss="alert"></button>
+						Your form validation is successful!
+						</div>
 
-						if ($client -> getAccessToken()) {
-							$max_results = 10000;
-							$req = new Google_HttpRequest("https://www.google.com/m8/feeds/contacts/default/full?max-results=" . $max_results);
-							$val = $client -> getIo() -> authenticatedRequest($req);
+						<div class="form-group">
+						<label for="inputEmail3" class="col-sm-2 control-label">Email</label>
+						<div class="col-sm-10">
+						<input type="email" class="form-control" name="email" id="inputEmail3" placeholder="Email">
 
-							// The contacts api only returns XML responses.
-							$response = json_encode(simplexml_load_string($val -> getResponseBody()));
-							$result = json_decode($response, true);
-							$author = $result['author'];
+						</div>
+						</div>
+						<div class="form-group">
+						<label for="inputPassword3" class="col-sm-2 control-label">Password</label>
+						<div class="col-sm-10">
+						<input type="password" class="form-control" name="password" id="password" placeholder="Password">
+						</div>
+						</div>
+						<div class="form-group">
+						<label for="inputPassword3" class="col-sm-2 control-label">Confirm Password</label>
+						<div class="col-sm-10">
+						<input type="password" class="form-control" name="password2" id="password2" placeholder="Password">
+						</div>
+						</div>
 
-							$sql = "select * from user";
-							$res = mysql_query($sql);
-							while ($row = mysql_fetch_array($res)) {
+						<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit" name="submit" class="btn btn-default">
+						Register
+						</button>
+						</div>
+						</div>
+					</form>
 
-								if ($row['email'] == $author['email']) {
+				</div>
+				<center>
+					<h3>Or</h3>
+					<a href="https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=http://php-hachiassignment.rhcloud.com/oauth.php&client_id=1044765685023.apps.googleusercontent.com&scope=http%3A%2F%2Fwww.google.com%2Fm8%2Ffeeds%2F&access_type=offline&approval_prompt=force" style="background-color:#E32B1D;color:#FFFFFF;padding: 10px; ">Sign In Using Gmail</a>
+				</center>
+			</div>
 
-									print "<h3>Hello, " . $author['name'] . "</h3>";
-									print "<h4>Your Contacts List</h4>";
-									//print "<pre>" . print_r($result, true) . "</pre>";
-									if (isset($result['entry'])) {
-										$entry = $result['entry'];
-										foreach ($entry as $obj) {
-											if (!is_array($obj['title']))
-												echo "<br>" . $obj['title'] . "<br />";
-										}
-									}
-									// The access token may have been updated lazily.
-									$_SESSION['token'] = $client -> getAccessToken();
-								}else {
-									print "<script>if(confirm('Do You want to sign up?')){
-									" . mysql_query("INSERT INTO user (email, name) VALUES ('" . $author['email'] . "', '" . $author['name'] . "')") . "
-									alert('You are very brave!');
-									}
-									</script>";
-									print "<h3>Hello, " . $author['name'] . "</h3>";
-									print "<h4>Your Contacts List</h4>";
-									//print "<pre>" . print_r($result, true) . "</pre>";
-									if (isset($result['entry'])) {
-										$entry = $result['entry'];
-										foreach ($entry as $obj) {
-											if (!is_array($obj['title']))
-												echo "<br>" . $obj['title'] . "<br />";
-										}
-									}
-									// The access token may have been updated lazily.
-									$_SESSION['token'] = $client -> getAccessToken();
-								}
+		</div><!-- /.container -->
 
-							}
+		<div class="container">
 
-						} else {
-							$auth = $client -> createAuthUrl();
-						}
+			<hr>
 
-						if (isset($auth)) {
-							print "<a class=login style='display:block;background: url('assets/images/sign-in-with-google.png')' href='$auth'>Login Using Gmail</a>";
-						} else {
-							print "<a class=logout href='?logout'>Logout</a>";
-						}
-						?>
+			<footer>
+				<div class="row">
+					<div class="col-lg-12">
+						<p>
+							Copyright &copy; 2013
+						</p>
 					</div>
 				</div>
-				<!--End Wrapper -->
+			</footer>
+
+		</div><!-- /.container -->
+
+		<!-- JavaScript -->
+		<script src="js/jquery-1.10.2.js"></script>
+		<script src="js/bootstrap.js"></script>
+		<script src="js/modern-business.js"></script>
+		<!-- validation -->
+		<script src="js/jquery.validate.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var form1 = $('#frmsignup');
+				var error1 = $('.alert-error', form1);
+				var success1 = $('.alert-success', form1);
+				form1.validate({
+					errorElement : 'span', //default input error message container
+					errorClass : 'help-inline', // default input error message class
+					focusInvalid : false, // do not focus the last invalid input
+					ignore : "",
+					rules : {
+						email : {
+							required : true
+						},
+						password : {
+							required : true
+						},
+						password2 : {
+							required : true,
+							equalTo : '#password'
+						}
+					},
+					invalidHandler : function(event, validator) {//display error alert on form submit
+						success1.hide();
+						error1.show();
+					},
+					highlight : function(element) {// hightlight error inputs
+						$(element).closest('.help-inline').removeClass('ok');
+						// display OK icon
+						$(element).closest('.control-group').removeClass('success').addClass('error');
+						// set error class to the control group
+					},
+					unhighlight : function(element) {// revert the change done by hightlight
+						$(element).closest('.control-group').removeClass('error');
+						// set error class to the control group
+					},
+					success : function(label) {
+						label.addClass('valid').addClass('help-inline ok')// mark the current input as valid and display OK icon
+						.closest('.control-group').removeClass('error').addClass('success');
+						// set success class to the control group
+					},
+					submitHandler : function(form) {
+						success1.show();
+						form.submit();
+						error1.hide();
+					}
+				});
+
+				var form2 = $('#frmsignin');
+				var error1 = $('.alert-error', form1);
+				var success1 = $('.alert-success', form1);
+				form2.validate({
+					errorElement : 'span', //default input error message container
+					errorClass : 'help-inline', // default input error message class
+					focusInvalid : false, // do not focus the last invalid input
+					ignore : "",
+					rules : {
+						emailsignin : {
+							required : true
+						},
+						passwordsignin : {
+							required : true
+						}
+					},
+					invalidHandler : function(event, validator) {//display error alert on form submit
+						success1.hide();
+						error1.show();
+					},
+					highlight : function(element) {// hightlight error inputs
+						$(element).closest('.help-inline').removeClass('ok');
+						// display OK icon
+						$(element).closest('.control-group').removeClass('success').addClass('error');
+						// set error class to the control group
+					},
+					unhighlight : function(element) {// revert the change done by hightlight
+						$(element).closest('.control-group').removeClass('error');
+						// set error class to the control group
+					},
+					success : function(label) {
+						label.addClass('valid').addClass('help-inline ok')// mark the current input as valid and display OK icon
+						.closest('.control-group').removeClass('error').addClass('success');
+						// set success class to the control group
+					},
+					submitHandler : function(form) {
+						success1.show();
+						form.submit();
+						error1.hide();
+					}
+				});
+
+			});
+		</script>
+		<!-- validation end -->
 	</body>
 </html>
-<!--Javascript-->
-<script src="assets/js/jquery-1.10.2.min.js"></script>
-<script src="assets/js/jquery-ui-1.10.3.custom.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
-<script src="js/custom.js"></script>
 
