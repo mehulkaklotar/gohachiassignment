@@ -61,6 +61,7 @@ if (isset($auth)) {
 		<!-- Add custom CSS here -->
 		<link href="css/modern-business.css" rel="stylesheet">
 		<link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
 	</head>
 
 	<body>
@@ -78,76 +79,91 @@ if (isset($auth)) {
 					<a class="navbar-brand" href="index.php">Assignment</a>
 				</div>
 				<!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="logout.php">Logout</a></li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
+				<div class="collapse navbar-collapse navbar-ex1-collapse">
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a href="logout.php">Logout</a>
+						</li>
+					</ul>
+				</div><!-- /.navbar-collapse -->
 			</div>
 		</nav>
 		<div class="container">
 			<div class="row">
 				<div style="margin: 20px;"></div>
-				<h3>Gmail Contacts</h3>
-				<div class="col-lg-12">
 
-					<?php
-					if ($client -> getAccessToken()) {
-						$max_results = 1000;
-						$req = new Google_HttpRequest("https://www.google.com/m8/feeds/contacts/default/full?max-results=" . $max_results . "&alt=json");
-						$val = $client -> getIo() -> authenticatedRequest($req);
+				<?php
+				if ($client -> getAccessToken()) {
+					$max_results = 9999;
+					$req = new Google_HttpRequest("https://www.google.com/m8/feeds/contacts/default/full?max-results=" . $max_results . "&alt=json");
+					$val = $client -> getIo() -> authenticatedRequest($req);
 
-						// The contacts api only returns XML responses.
-						//$response = json_encode(simplexml_load_string($val -> getResponseBody()));
-						$response = $val -> getResponseBody();
+					// The contacts api only returns XML responses.
+					//$response = json_encode(simplexml_load_string($val -> getResponseBody()));
+					$response = $val -> getResponseBody();
 
-						$response_as_array = json_decode($response, true);
+					$response_as_array = json_decode($response, true);
 
-						$feed = $response_as_array['feed'];
+					$feed = $response_as_array['feed'];
 
-						//$id = $feed['id'];
-						$author = $feed['author'];
+					//$id = $feed['id'];
+					$author = $feed['author'];
 
-						foreach ($author as $obj) {
-							$name = $obj['name']['$t'];
-							$email = $obj['email']['$t'];
-						}
-
-						$totalresults = $feed['openSearch$totalResults'];
-						//echo $totalresults['$t'];
-						$entries = $feed['entry'];
-
-						//print "<pre>" . print_r($response_as_array, true) . "</pre>";
-						print "<table class='table'><tr><th>Name</th>
-								<th>Phone Numbers</th>
-								</tr>";
-
-						foreach ($entries as $entry) {
-							print "<tr>";
-							print "<td>";
-							echo $entry['title']['$t'];
-							print "</td>";
-							print "<td>";
-							if (isset($entry['gd$phoneNumber'])) {
-								$phonenumber = $entry['gd$phoneNumber'];
-								foreach ($phonenumber as $obj) {
-									echo $obj['$t'];
-								}
-							}
-							print "</td>";
-							print "</tr>";
-						}
-						
-							print "</table>";
-						// The access token may have been updated lazily.
-						$_SESSION['token'] = $client -> getAccessToken();
-
-					} else {
-						$auth = $client -> createAuthUrl();
-						print "<h3>No Contacts. Connect Using Gmail</h3>";
+					foreach ($author as $obj) {
+						$name = $obj['name']['$t'];
+						$email = $obj['email']['$t'];
 					}
-					?>
-					
+
+					print "<h3>Gmail Contacts for " . $name . "</h3>";
+					print "<div class='col-lg-12'>";
+
+					$totalresults = $feed['openSearch$totalResults'];
+					print "<h4>Total results: " . $totalresults['$t'] . "</h4>";
+					$entries = $feed['entry'];
+
+					//print "<pre>" . print_r($response_as_array, true) . "</pre>";
+					print "<table class='table table-vam table-striped'>
+					<thead><tr>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Phone Numbers</th></thead>
+</tr><tbody>";
+
+					foreach ($entries as $entry) {
+						print "<tr>";
+						print "<td>";
+						echo $entry['title']['$t'];
+						print "</td>";
+						print "<td>";
+						if (isset($entry['gd$email'])) {
+							$emailentry = $entry['gd$email'];
+							foreach ($emailentry as $emailobj) {
+								echo $emailobj['address'];
+							}
+						}
+						print "</td>";
+						print "<td>";
+						if (isset($entry['gd$phoneNumber'])) {
+							$phonenumber = $entry['gd$phoneNumber'];
+							foreach ($phonenumber as $obj) {
+								echo $obj['$t'];
+							}
+						}
+						print "</td>";
+						print "</tr></tbody>";
+
+					}
+
+					print "</table>";
+					// The access token may have been updated lazily.
+					$_SESSION['token'] = $client -> getAccessToken();
+
+				} else {
+					$auth = $client -> createAuthUrl();
+					print "<h3>No Contacts. Connect Using Gmail</h3>";
+				}
+				?>
+
 				</div>
 			</div>
 
